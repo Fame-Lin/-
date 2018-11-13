@@ -1,0 +1,231 @@
+icsc网络磁盘   默认端口：3260
+internet scsi
+-一种基于c/s架构的虚拟磁盘技术
+-服务器提供磁盘空间，客户机连接并当成本地磁盘使用
+
+大冰箱--------->简易包装(纸皮)-------->坚固包装（木）-------->运输
+
+ISCSI磁盘的构成
+
+-backstore，后端存储（大冰箱-共享设备）
+-对应到服务端提供实际储存的设备，需要起一个管理名称
+
+-target，磁盘组（坚固的包装（木））
+-是客户端的访问目标，作为一个框架，由多个lun组成
+
+lun，逻辑单元
+
+
+搭建网络共享磁盘
+1 进行分区
+ 安装软件（targetcli）
+
+2运行targeicli进行配置
+运行targetcli命令(仅限redhat 7以上)  6需要改配置文件 
+
+1/ 建立后端储存（相当于买冰箱---->简易包装）
+backstores/block create name=名称 dev=磁盘路径
+
+2/建立 target ，磁盘组  木箱子（坚硬的包装）
+
+命令：iscsi/ create iqn.年份-月份.倒序域名：自定义标识
+用户格式：iqn.年份-月份.倒序域名：自定义标识
+
+3/ 进行 lun 关联 （将后端存储------>磁盘组）
+
+格式： iscsi/iqn.2018-08.example.com:server0/tpg1/luns create /backstores/block/nsd 
+       （ 将买回来的冰箱放进去木箱子里面（lun））
+
+4/ 设置访问控制列表（acl）
+iqn进行标识客户端（设置客户端声称的名字）
+
+iscsi/iqn.2018-08.example.com:server0/tpg1/acls create iqn.2018-08.example.com:desktop0
+
+iscsi/磁盘组名称/tpg1/acls create + 客户端声称的标识（服务器创建的）
+
+5/ 设置本机允许客户端访问的IP地址，端口号
+
+> iscsi/iqn.2018-08.example.com:server0/tpg1/portals create 172.25.0.11
+
+
+6/重起服务
+
+[root@server0 ~]# systemctl restart target
+[root@server0 ~]# systemctl  enable target
+
+
+客户端：
+1.安装软件包（ iscsi-initiator-utils ）
+
+2修改配置文件（指定客户端声称的名称）
+/etc/iscsi/initiatorname.iscsi
+
+3 重起服务，刷新声称的名字
+
+[root@desktop0 ~]# systemctl restart iscsid
+
+4 寻找服务端共享储存
+
+iscsiadm --mode discoverydb --type sendtargets --portal 172.25.0.11 --discover
+
+5重起iscsi服务，加载识别共享服务
+
+[root@desktop0 ~]# systemctl restart iscsi
+[root@desktop0 ~]# systemctl enable iscsi
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

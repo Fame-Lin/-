@@ -1,0 +1,109 @@
+数据库 默认端口：3306
+mariaDB
+
+
+部署mariadb数据库服务器
+1 安装软件包
+-mariadb-server
+
+show databases  （查看有哪些库）
+
+create database  名称 （创建一个库）
+
+drop  database 名称 （删除一个库）
+
+为数据库设置密码
+
+数据库管理员：root 对整个数据库有最高权限。 密码存放在masql库中的user表中
+
+linux管理员：root 对整个系统有最高权限。密码存放在 /etc/shoawd
+
+设置密码：mysqladmin -u 用户名  -p 旧密码  password 密码 
+
+登陆命令：mysql -u root -p
+
+数据库的主配置文件
+/etc/my.cnf
+
+
+数据库的导入/导出操作
+导出/备份数据库
+mysqldump -u 用户名 -p 密码  数据库名 > 备份文件。sql
+
+导入/恢复到数据库
+mysql -u 用户名 -p 密码 数据库名 < 备份文件.sql
+
+mysql -u 用户名  -h 指定域名解析 
+
+对于表格操作
+1表字段   表记录
+
+操作： 增 （insert） 删（delete）  改（update）  查（select）
+
+use  库名称 （进去库里面）
+
+show tables(列出库里面所有表格)
+
+select * from base  （查看所有表格的内容）  # *代表所有字段 可以按知道的字段来搜寻 
+
+select name，password  from  库里表格的名称  （查看某个字段的信息（表格会按照你搜寻的顺序重新弄个新的））
+
+进去库里：use 库名 （数据库没有后退一说）
+
+有条件的查询
+ select 表字段 from 表名 where 表字段=值；
+
+看表结构
+desc 表名称； （查看表结构）常用于字段多的表
+
+
+
+数据库的授权
+
+-grant 权限列表 on 数据库。表名 to 用户名@客户机地址identified by '密码';
+
+例： grant select on nsd1807.* to lisi@loclahost identified by '123'
+
+select *from nsd1807.base,nsd1807.location where name='barbara' and city='sunnyvale' and base.id=location.id
+(上面为多个条件查询，只有结果为少数的时候)
+
+select count(*)from nsd1807.base,nsd1807.location where name='barbara' and city='sunnyvale' and base.id=location.id
+（上面为多个条件查询且统计结果有多少。应用于结果众多的时候）
+
+禁止用户登陆数据库
+
+MariaDB [mysql]> select user,host,password from mysql.user  where password=''; #查询user里面password为空的
+
++------+---------------------+----------+
+| user | host                | password |
++------+---------------------+----------+
+| root | server0.example.com |          |
+| root | 127.0.0.1           |          |
+| root | ::1                 |          |
+|      | localhost           |          |
+|      | server0.example.com |          |
++------+---------------------+----------+
+
+MariaDB [mysql]> delete from mysql.user where password='';  #删除user里面密码为空的
+
+flush privileges  #刷新列表
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

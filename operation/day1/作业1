@@ -1,0 +1,101 @@
+新克隆 2 台虚拟机(不要破坏上课用的 4 台虚拟机)
+:
+VM1(eth0:192.168.4.253)
+VM2(eth0:192.168.4.252)
+yum -y install openssl-devel gcc  pcre-devel
+
+
+1. 在 VM2 虚拟机上源码安装部署 nginx-1.10.3.tar.gz
+cd /root/lnmp_soft
+tar -xf lnmp_soft.tar.gz
+./configure --prefix=/usr/local/nginx --user=nginx --group=nginx --with-http_ssl_module
+useradd -s /sbin/nologin nginx
+/usr/local/nginx/sbin/nginx 
+make && make install
+
+
+2. 在 VM2 虚拟机上,将 nginx-1.10.3 升级到 nginx1-12.2
+tar -xf nginx-1.12.2.tar.gz
+cd nginx-1.12.2/
+./configure --prefix=/usr/locla/nginx --user=nginx --group=nginx --with-http_ssl_module
+make
+make upgrade
+
+3. 启动 nginx 服务,使用 netstat 命令确认 80 端口是否已经启动
+/usr/local/nginx/sbin/nginx 
+netstat -ntupl | grep 80
+
+
+4. 在 VM2 虚拟机配置基于域名的 nginx 虚拟主机
+(配置域名为 www.tarena.com 和 www.tedu.cn)
+(www.tarena.com 网站的根目录为/usr/local/nginx/tarena/)
+(www.tedu.com 网站的根目录为/usr/local/nginx/tedu/)
+
+server {
+        listen       80;
+        server_name  www.tarena.com;
+        auth_basic "lililili";
+        auth_basic_user_file "/usr/locla/nginx/pass";
+        location / {
+            root   tarena;
+            index  index.html index.htm;
+        }
+    }
+    server {
+        listen       80;
+        server_name  www.tudu.com;
+
+        location / {
+            root   tudu;
+            index  index.html index.htm;
+        }
+}
+
+
+
+5. 对 www.tedu.cn 网站进行账户认证配置,仅当输入用账户和密码时才可以打开网页
+
+server {
+        listen       80;
+        server_name  www.tarena.com;
+        auth_basic "lililili";
+        auth_basic_user_file "/usr/locla/nginx/pass";
+        location / {
+            root   tarena;
+            index  index.html index.htm;
+        }
+    }
+
+
+6. 使用 openssl 创建非对称密钥(创建私钥和证书)
+
+openssl genrsa > cert.key
+openssl req -new -x509 -key cert.key > cert.pem
+
+7. 修改 nginx 配置,创建一个新的支持 SSL 加密的虚拟主机,调用前面的私钥和证书
+(配置域名为 www.test.com,网站根目录为/usr/local/nginx/test)
+
+server {
+        listen       443 ssl;
+        server_name  www.test.com;
+
+        ssl_certificate      cert.pem;
+        ssl_certificate_key  cert.key;
+
+        ssl_session_cache    shared:SSL:1m;
+        ssl_session_timeout  5m;
+
+        ssl_ciphers  HIGH:!aNULL:!MD5;
+        ssl_prefer_server_ciphers  on;
+
+        location / {
+            root   test;
+            index  index.html index.htm;
+        }
+    }
+
+
+
+
+
+

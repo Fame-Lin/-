@@ -1,0 +1,164 @@
+web通信基本概念
+基于B/S（Browswr/Server）架构的网页服务
+-服务端提供网页
+-浏览器下载并显示网页
+
+HTTP:超文本传输协议  默认端口：80
+
+
+HTML：超文本标记语言  
+
+
+tengine：
+
+
+1 安装软件httpd
+2启动服务
+
+
+servername:本站点注册的DNS名称（空缺）
+
+配置文件在：/etc/httpd/conf/httpd.conf
+补充： vim 显示行号 在末行模式下 set nu
+
+
+
+
+nameserver : 指定域名
+
+
+documentroot :网页文件根目录（/var/www/html）
+
+网络路径与实际路径区别
+
+
+
+##########################################################################################################
+虚拟Web主机 
+-由一台服务器提供多个不同的web站点
+
+区分方式
+-基于域名的虚拟主机
+-基于端口的虚拟主机
+-基于IP的虚拟主机
+
+
+—基于域名的虚拟主机
+<virtualhost  ip地址：端口> 
+  servername 此站点的DNS名称
+  documentroot 此站点的网页根目录
+</virtualhost>
+
+-配置文件
+-/etc/htppd/conf/httpd/.conf
+-/etc/httpd/conf.d/*.conf (调用配置文件) #为了保护主配置文件的安全，简洁以及不麻烦 请写在调用配置文件
+
+killall httpd  #杀死所有HTTPD程序
+
+# 一旦使用了虚拟web主机功能，所有的web的站点都需要虚拟主机来实现
+<virtualhost *:80>
+servername www0.example.com
+documentroot /var/www/qq
+</virtualhost>
+
+##########################################################################################################
+
+httpd的访问控制
+
+客户机地址限制
+使用<Directory>配置区段
+-每个文件夹自动继承其父目录的ACL访问权限
+-除非针对子目录由明确的设置
+<Directory>
+require all denied|granteed
+require ip 
+
+#####################################################################################
+
+SELinux安全上下文值（标识，标签文件或目录）
+修改上下文值
+chcon -R --reference=/参考模版   /要修改的目录
+
+查看所有文件目录的上下值
+semange fconrexe  
+
+查看目录上下值
+ls -Zd /查看的目录或文档
+
+静态动态web
+
+静态网站的运行
+-服务端的原始页面=浏览访问到网页
+-由web服务软件处理所有请求
+-文本（txt/html），图片（jpg/png）等静态资源
+
+动态页面的运行
+服务端的原始网页 不等于 浏览器访问到的网页
+-由web服务软件接受请求，动态程序转后端模块处理
+-PHP网页 Python网页，JSP网页
+
+方便客户端访问，网页跳转（网页路径别名）
+Alias 客户访问域名    服务器原网页文件
+
+<virtualhost *:80>
+servername webapp0.example.com
+documentroot /var/www/baidu
+Alias /  /var/www/baidu/webinfo.wsgi
+</virtualhost>
+
+安装软件包 mod_wsgi
+
+<virtualhost *:80>
+servername webapp0.example.com
+documentroot /var/www/baidu
+wsgiScriptAlias /  /var/www/baidu/webinfo.wsgi
+</virtualhost>
+
+在虚拟机侦听在端口8909
+
+listen 端口
+
+listen 8909
+<virtualhost *:8909>
+servername webapp0.example.com
+documentroot /var/www/baidu
+wsgiScriptAlias /  /var/www/baidu/webinfo.wsgi
+</virtualhost>
+
+
+SELinux非默认端口的开放
+semanage port -a -t http_prot
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
